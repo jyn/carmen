@@ -43,7 +43,6 @@ module ActionView
       def split_coutries_into_priorities_and_non_priorities(priority_country_codes)
         priority_countries = {}
         non_priority_countries = {}
-        puts priority_country_codes.inspect
         Carmen::countries.each do |pair| 
           name, code = pair
           if priority_country_codes.include?(code)

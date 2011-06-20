@@ -22,22 +22,37 @@ module ActionView
       # that they will be listed above the rest of the (long) list.
       def country_options_for_select(selected = nil, *priority_country_codes)
         country_options = ""
+        priority_countries = []
+        non_priority_countries = []
 
         unless priority_country_codes.empty?
           unless Carmen.country_name(priority_country_codes[0])
             priority_country_codes = Carmen.priority_countries
           end
-          priority_countries = Carmen::countries.select do |pair| 
-            name, code = pair
-            priority_country_codes.include?(code)
-          end
+          priority_countries, non_priority_countries = split_coutries_into_priorities_and_non_priorities(priority_country_codes)
+
           unless priority_countries.empty?
             country_options += options_for_select(priority_countries, selected)
             country_options += "\n<option value=\"\" disabled=\"disabled\">-------------</option>\n"
           end
         end
 
-        return country_options + options_for_select(Carmen.countries, priority_country_codes.include?(selected) ? nil : selected)
+        return country_options + options_for_select(non_priority_countries, priority_country_codes.include?(selected) ? nil : selected)
+      end
+
+      def split_coutries_into_priorities_and_non_priorities(priority_country_codes)
+        priority_countries = {}
+        non_priority_countries = {}
+        puts priority_country_codes.inspect
+        Carmen::countries.each do |pair| 
+          name, code = pair
+          if priority_country_codes.include?(code)
+            priority_countries[name] = code 
+          else
+            non_priority_countries[name] = code 
+          end
+        end
+        [priority_countries.entries, non_priority_countries.entries]
       end
     end
 
